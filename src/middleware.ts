@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "./utils/supabase/server";
 
-export function middleware(request: NextRequest) {
-    console.log(1);
-    
-    if (request.nextUrl.pathname.startsWith("/auth")) {
+export async function middleware(request: NextRequest) {
+    if (request.nextUrl.pathname.startsWith("/auth") || request.nextUrl.pathname.startsWith("/api/auth")) {
         return NextResponse.next();
     }
 
-    const token = request.cookies.get("sb-access-token")?.value;
+    const supabase = await createClient();
+    const session = supabase.auth.getSession()
 
-    if (!token) {
+    if (!session) {
         return NextResponse.redirect(new URL("/auth", request.url));
     }
 

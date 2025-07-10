@@ -12,5 +12,3 @@ interface User {
 enum UserStatus {
     ACTIVE, INACTIVE, BLOCKED
 }
-
-

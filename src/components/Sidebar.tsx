@@ -11,7 +11,6 @@ import {
 import { usePathname } from "next/navigation";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { useTheme } from "next-themes";
-import Image from "next/image";
 
 interface SidebarHeaderProps {
     children?: React.ReactNode;
@@ -88,22 +87,22 @@ export default function Sidebar() {
                         <Sidebar.NavItem
                             icon={<LayoutDashboard width={16} height={16} />}
                             label="Dashboard"
-                            destination="/"
+                            destination="/dashboard"
                         />
                         <Sidebar.NavItem
                             icon={<HeartHandshake width={16} height={16} />}
                             label="Relation"
-                            destination="/relation"
+                            destination="/dashboard/relation"
                         />
                         <Sidebar.NavItem
                             icon={<CalendarDays width={16} height={16} />}
                             label="Schedule"
-                            destination="/schedule"
+                            destination="/dashboard/schedule"
                         />
                         <Sidebar.NavItem
                             icon={<Smile width={16} height={16} />}
                             label="LifeStyle"
-                            destination="/lifestyle"
+                            destination="/dashboard/lifestyle"
                         />
                     </Sidebar.Nav>
                 </Sidebar.Content>
