@@ -1,3 +1,7 @@
 export default function Home() {
-    return <></>;
+    
+    return (
+        <div className="flex border-2 border-[white]">
+        </div>
+    );
 }

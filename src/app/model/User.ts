@@ -1,14 +1,18 @@
 import { UUID } from "crypto";
 
-interface User {
+export interface User {
     id: UUID;
     email: string;
     avatar: string;
-    status: UserStatus;
+    status: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
 
-enum UserStatus {
-    ACTIVE, INACTIVE, BLOCKED
+export interface UserProfile {
+    id: UUID;
+    userId: string;
+    nickname: string;
+    createdAt: Date;
+    updatedAt: Date;
 }

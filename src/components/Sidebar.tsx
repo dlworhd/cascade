@@ -4,13 +4,29 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
     CalendarDays,
+    ChevronDown,
+    ChevronsLeftRight,
+    ChevronUp,
     HeartHandshake,
     LayoutDashboard,
     Smile,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useSidebarStore } from "@/store/sidebarStore";
-import { useTheme } from "next-themes";
+import Image from "next/image";
+import { useUserStore } from "@/store/userStore";
+import { UserProfile } from "@/app/model/User";
+import PopOver from "./common/PopOver";
+
+interface SidebarContainerProps {
+    children?: React.ReactNode;
+    className?: string;
+}
+
+interface SidebarCollapseContainerProps {
+    children?: React.ReactNode;
+    className?: string;
+}
 
 interface SidebarHeaderProps {
     children?: React.ReactNode;
@@ -31,168 +47,235 @@ interface NavProps {
     children: React.ReactNode;
 }
 
+interface NavLabelProps {
+    label: string;
+    children?: React.ReactNode;
+}
+
 interface NavItemProps {
     label: string;
     icon: React.ReactNode;
     destination: string;
 }
 
-export default function Sidebar() {
-    const isCollapse = useSidebarStore((state) => state.isCollapse);
-    const width = useSidebarStore((state) => state.width);
-    const setWidth = useSidebarStore((state) => state.setWidth);
+interface SidebarProps {
+    profile: Partial<UserProfile>;
+}
+
+export default function Sidebar({ profile }: SidebarProps) {
     const toggleCollapse = useSidebarStore((state) => state.toggleCollapse);
-    // const [dragging, setDragging] = useState<boolean>(false);
+    const icon = {
+        width: 15,
+        height: 15,
+    };
 
-    // useEffect(() => {
-    //     function onMouseMove(e: MouseEvent) {
-    //         if (!dragging) return;
-    //         const newWidth = Math.max(80, Math.min(240, e.clientX));
-    //         setWidth(newWidth);
-    //     }
+    const userProfile = useUserStore((state) => state.userProfile);
+    const setProfile = useUserStore((state) => state.setProfile);
 
-    //     function onMouseUp() {
-    //         setDragging(false);
-    //     }
+    useEffect(() => {
+        setProfile(profile);
+    }, [profile, setProfile]);
 
-    //     // dragging 상태에서만 위의 함수들이 동작
-    //     if (dragging) {
-    //         window.addEventListener("mousemove", onMouseMove);
-    //         window.addEventListener("mouseup", onMouseUp);
-    //     }
-
-    //     // dragging 상태가 아닌 경우에는 위의 함수들을 제거
-    //     return () => {
-    //         window.removeEventListener("mousemove", onMouseMove);
-    //         window.removeEventListener("mouseup", onMouseUp);
-    //     };
-    // }, [dragging, setWidth]);
-
+    const handlePopover = () => {};
     return (
-        <>
-            <div
-                className={`fixed flex flex-col ${isCollapse ? "w-[80px]" : "w-[var(--sidebar-width)]"} inset-0 h-screen p-4 bg-[var(--sidebar-background)] transition-all duration-200`}
-            >
-                <Sidebar.Header></Sidebar.Header>
+        <Sidebar.Container>
+            <Sidebar.Collapse>
+                <Sidebar.Header>
+                    <PopOver
+                        trigger={
+                            <div className="flex gap-2 items-center w-full">
+                                <Image
+                                    className="rounded-full"
+                                    src={`/images/${userProfile?.nickname}-profile.png`}
+                                    alt="profile"
+                                    width={35}
+                                    height={35}
+                                />
+                                <span className="text-sm font-semibold">@{userProfile?.nickname}</span>
+                                <ChevronDown width={15} height={15} />
+                            </div>
+                        }
+                    >
+                        <ul>
+                            <li className="hover:bg-[var(--foreground)]/80 cursor-pointer select-none p-1 rounded">메뉴1</li>
+                            <li className="hover:bg-[var(--foreground)]/80 cursor-pointer select-none p-1 rounded">메뉴2</li>
+                            <li className="hover:bg-[var(--foreground)]/80 cursor-pointer select-none p-1 rounded">메뉴3</li>
+                        </ul>
+                    </PopOver>
+                </Sidebar.Header>
                 <Sidebar.Content>
-                    <div>
-                        {/* <Columns3
-                            width={16}
-                            height={16}
-                            className="absolute top-4 -right-[41px] hover:opacity-80"
-                            onClick={toggleCollpase}
-                        /> */}
-                    </div>
                     <Sidebar.Nav>
+                        {/* <Sidebar.NavLabel label="Workspace"> */}
                         <Sidebar.NavItem
-                            icon={<LayoutDashboard width={16} height={16} />}
+                            icon={
+                                <LayoutDashboard
+                                    width={icon.width}
+                                    height={icon.height}
+                                />
+                            }
                             label="Dashboard"
                             destination="/dashboard"
                         />
                         <Sidebar.NavItem
-                            icon={<HeartHandshake width={16} height={16} />}
+                            icon={
+                                <HeartHandshake
+                                    width={icon.width}
+                                    height={icon.height}
+                                />
+                            }
                             label="Relation"
                             destination="/dashboard/relation"
                         />
                         <Sidebar.NavItem
-                            icon={<CalendarDays width={16} height={16} />}
+                            icon={
+                                <CalendarDays
+                                    width={icon.width}
+                                    height={icon.height}
+                                />
+                            }
                             label="Schedule"
                             destination="/dashboard/schedule"
                         />
                         <Sidebar.NavItem
-                            icon={<Smile width={16} height={16} />}
+                            icon={
+                                <Smile
+                                    width={icon.width}
+                                    height={icon.height}
+                                />
+                            }
                             label="LifeStyle"
                             destination="/dashboard/lifestyle"
                         />
+                        {/* </Sidebar.NavLabel> */}
                     </Sidebar.Nav>
                 </Sidebar.Content>
-                <Sidebar.Footer className="flex-1"></Sidebar.Footer>
-                <div
-                    style={{ userSelect: "none" }}
-                    className="absolute top-0 right-0 border-r border-[var(--sidebar-border)] hover:border-r-2 hover:border-[var(--primary)] shadow-[1px_0_15px_0_rgba(0,0,0,0.)] h-full cursor-ew-resize z-50"
-                    onClick={toggleCollapse}
-                ></div>
+                <Sidebar.Footer></Sidebar.Footer>
+            </Sidebar.Collapse>
+            <div
+                className="absolute top-0 right-0 border-r border-[var(--sidebar-border)] hover:border-r-1 hover:border-[var(--primary)] shadow-[1px_0_15px_0_rgba(0,0,0,0.)] h-full cursor-ew-resize z-50 select-none"
+                onClick={toggleCollapse}
+            >
+                <ChevronsLeftRight
+                    className="absolute top-1/2 -right-[8px]"
+                    width={15}
+                    height={15}
+                />
             </div>
-        </>
+        </Sidebar.Container>
+    );
+}
+export function SidebarContainer({ children }: SidebarContainerProps) {
+    const isCollapse = useSidebarStore((state) => state.isCollapse);
+    const userProfile = useUserStore((state) => state.userProfile);
+    console.log(userProfile);
+
+    if (!userProfile) {
+        return (
+            <Link href="/auth">
+                <div className="p-4">로그인이 필요합니다.</div>
+            </Link>
+        );
+    }
+
+    return (
+        <div
+            className={`select-none fixed flex flex-col ${
+                isCollapse
+                    ? "w-[var(--sidebar-min-width)]"
+                    : "w-[var(--sidebar-max-width)] p-4"
+            } inset-0 h-screen bg-[var(--sidebar-background)] transition-all duration-200`}
+        >
+            {children}
+        </div>
+    );
+}
+
+export function SidebarCollapseContainer({
+    children,
+}: SidebarCollapseContainerProps) {
+    const isCollapse = useSidebarStore((state) => state.isCollapse);
+
+    return (
+        <div className={`${isCollapse ? "hidden" : "flex flex-col"} h-full`}>
+            {children}
+        </div>
     );
 }
 
 export function SidebarHeader({ children }: SidebarHeaderProps) {
-    const { resolvedTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
-
-    const width = useSidebarStore((state) => state.width);
-    const isCollapse = useSidebarStore((state) => state.isCollapse);
-    const logo = `/images/logo-${resolvedTheme == "dark" ? "dark" : "light"}${
-        isCollapse ? "-small" : ""
-    }.png`;
 
     useEffect(() => setMounted(true), []);
     if (!mounted) return null;
 
-    return (
-        <div className={`flex-1 flex ${isCollapse ? "justify-center" : "justify-center"} items-center mb-4 border-b border-[var(--border)]`}>
-            
-        </div>
-    );
+    return <div className="flex-[0.5] flex items-center pb-4">{children}</div>;
 }
 
 export function SidebarContent({ children }: SidebarContentProps) {
-    const isCollapse = useSidebarStore((state) => state.isCollapse);
-
-    return <div className="flex-8 py-4 overflow-hidden">{children}</div>;
+    return <div className="flex-[8.5] py-4 overflow-hidden">{children}</div>;
 }
 
 export function SidebarFooter({ children }: SidebarFooterProps) {
-    return (
-        <div className="flex-1 mt-4 border-t border-[var(--border)]">
-            {children}{" "}
-        </div>
-    );
+    return <div className="flex-[0.5] mt-4">{children} </div>;
 }
 
 export function Nav({ children }: NavProps) {
-    const isCollapse = useSidebarStore((state) => state.isCollapse);
-
-    return (
-        <ul
-            className={`flex flex-col items-start gap-1 ${
-                isCollapse ? "items-center" : ""
-            }`}
-        >
-            {children}
-        </ul>
-    );
+    return <ul className="flex flex-col items-start gap-[2px]">{children}</ul>;
 }
 
+function NavLabel({ label, children }: NavLabelProps) {
+    const [isFolded, setIsFolded] = useState(false);
+    const handleFold = () => {
+        setIsFolded((prev) => !prev);
+    };
+
+    return (
+        <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-0.5" onClick={handleFold}>
+                <span className="text-sm">{label}</span>
+                {isFolded ? (
+                    <ChevronUp width={15} height={15} />
+                ) : (
+                    <ChevronDown width={15} height={15} />
+                )}
+            </div>
+            <ul
+                className={`${
+                    isFolded ? "hidden" : "flex"
+                } flex-col items-start gap-[2px]`}
+            >
+                {children}
+            </ul>
+        </div>
+    );
+}
 function NavItem({ icon, label, destination }: NavItemProps) {
     const pathName = usePathname();
     const isActive = pathName == destination;
-    const width = useSidebarStore((state) => state.width);
-    const isCollapse = useSidebarStore((state) => state.isCollapse);
 
     return (
         <Link
-            className={`hover:bg-[white]/10 rounded-md w-full px-4 py-4 ${
+            className={`hover:bg-[var(--background)]/50 rounded-md w-full px-2 py-2 ${
                 isActive
-                    ? "font-bold"
-                    : "text-[var(--sidebar-foreground)] hover:text-[var(--foreground)]"
+                    ? "bg-[var(--background)]/50"
+                    : "text-[var(--sidebar-foreground)] hover:text-[var(--foreground)] "
             } cursor-pointer`}
             href={destination}
         >
-            <li className="h-4 flex gap-3 items-center text-sm">
+            <li className="flex gap-2 items-center text-sm">
                 <span>{icon}</span>
-                <span className={`${isCollapse ? "hidden" : "block"}`}>
-                    {label}
-                </span>
+                <span>{label}</span>
             </li>
         </Link>
     );
 }
 
+Sidebar.Container = SidebarContainer;
+Sidebar.Collapse = SidebarCollapseContainer;
 Sidebar.Header = SidebarHeader;
 Sidebar.Content = SidebarContent;
 Sidebar.Footer = SidebarFooter;
 
+Sidebar.NavLabel = NavLabel;
 Sidebar.Nav = Nav;
 Sidebar.NavItem = NavItem;

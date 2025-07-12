@@ -6,7 +6,7 @@ interface ButtonProps {
     size: "sm" | "md" | "lg";
     disabled?: boolean;
     className?: string;
-    children?: string;
+    children?: React.ReactNode;
     onClick?: () => void;
 }
 

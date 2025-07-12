@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/dashboard.css";
-import Container from "@/components/Container";
+import { fetchProfile } from "@/utils/supabase/query/UserQuery";
 import { ThemeProvider } from "next-themes";
+import ProfileModalTrigger from "@/components/ProfileTrigger";
 import Sidebar from "@/components/Sidebar";
-import { createClient } from "@/utils/supabase/server";
-import ProfileModalTrigger from "@/components/ProfileModalTrigger";
-import { redirect } from "next/navigation";
+import Container from "@/components/Container";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -28,29 +27,15 @@ export default async function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const supabase = await createClient();
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
     let needsProfile = false;
-    const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", user?.id)
-        .limit(1)
-        .single();
 
-    if (error || data.nickname == "NULL") {
-        const { data, error: insertError } = await supabase.from("profiles").insert([{ user_id: user?.id }]);
-        if (insertError) {
-            alert("문제가 발생하였습니다.")
-            redirect("/")
-        } else {
-            needsProfile = true;
-        }
+    // 1. 대시보드 진입 시 프로필 정보를 읽기 위해 처리
+    const profile = await fetchProfile();
+
+    // 2. 프로필 존재하지 않거나 Nickname이 유효하지 않는 경우 NeedsProfile 지정 후 처리
+    if (profile && profile.nickname == "NULL") {
+        needsProfile = true;
     }
-
-    
 
     return (
         <html lang="ko" suppressHydrationWarning>
@@ -58,9 +43,11 @@ export default async function RootLayout({
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
                 <ThemeProvider>
-                    <ProfileModalTrigger userId={ user?.id } needsProfile={needsProfile}/>
-                        <Sidebar />
-                        <Container>{children}</Container>
+                    <ProfileModalTrigger needsProfile={needsProfile} />
+                    <Sidebar profile={ profile } />
+                    <Container>
+                        {children}
+                    </Container>
                 </ThemeProvider>
             </body>
         </html>
